@@ -12,15 +12,16 @@ class Base(DeclarativeBase):
 class Temps(Base):
     __tablename__ = "temps"
 
+    # Using adc rather than adu as gpiozero returns values in range [0..1]
     id: Mapped[int] = mapped_column(primary_key=True)
     datetime: Mapped[datetime]
-    adu0: Mapped[Optional[float]]
+    adc0: Mapped[Optional[float]]
     temp0: Mapped[Optional[float]]
-    adu1: Mapped[Optional[float]]
+    adc1: Mapped[Optional[float]]
     temp1: Mapped[Optional[float]]
-    adu2: Mapped[Optional[float]]
+    adc2: Mapped[Optional[float]]
     temp2: Mapped[Optional[float]]
-    adu3: Mapped[Optional[float]]
+    adc3: Mapped[Optional[float]]
     temp3: Mapped[Optional[float]]
 
     pump: Mapped[Optional[bool]]
