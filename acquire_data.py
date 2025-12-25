@@ -14,6 +14,10 @@ adc1 = gpiozero.MCP3208(channel=1)
 adc2 = gpiozero.MCP3208(channel=2)
 adc3 = gpiozero.MCP3208(channel=3)
 
+pump = gpiozero.DigitalInputDevice(pin=17, pull_up=None, active_state=True)
+heater = gpiozero.DigitalInputDevice(pin=23, pull_up=True, active_state=False)
+timer = gpiozero.DigitalInputDevice(pin=27, pull_up=True, active_state=False)
+
 with Session(engine) as session:
     while True:
         t = Temps()
@@ -22,7 +26,10 @@ with Session(engine) as session:
         t.adc1 = adc1.value
         t.adc2 = adc2.value
         t.adc3 = adc3.value
-        print(f"{t.datetime} {t.adc0} {t.adc1} {t.adc2} {t.adc3}")
+        t.pump = pump.value
+        t.timer = timer.value
+        t.heater = heater.value
+        print(f"{t.datetime} {t.adc0} {t.adc1} {t.adc2} {t.adc3} {t.pump} {t.timer} {t.heater}")
         session.add(t)
         session.commit()
         time.sleep(10)
