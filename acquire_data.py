@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 import time
-import gpizero
+import gpiozero
 
 from config import dbname
 from orm import Temps
@@ -9,10 +9,10 @@ from orm import Temps
 import datetime
 engine = create_engine(dbname, echo=False)
 
-adc0 = gpizero.MCP3208(channel=0)
-adc1 = gpizero.MCP3208(channel=1)
-adc2 = gpizero.MCP3208(channel=2)
-adc3 = gpizero.MCP3208(channel=3)
+adc0 = gpiozero.MCP3208(channel=0)
+adc1 = gpiozero.MCP3208(channel=1)
+adc2 = gpiozero.MCP3208(channel=2)
+adc3 = gpiozero.MCP3208(channel=3)
 
 with Session(engine) as session:
     while True:
