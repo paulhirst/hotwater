@@ -14,9 +14,9 @@ adc1 = gpiozero.MCP3208(channel=1)
 adc2 = gpiozero.MCP3208(channel=2)
 adc3 = gpiozero.MCP3208(channel=3)
 
-pump = gpiozero.DigitalInputDevice(pin=17, pull_up=None, active_state=True)
-heater = gpiozero.DigitalInputDevice(pin=23, pull_up=True, active_state=False)
-timer = gpiozero.DigitalInputDevice(pin=27, pull_up=True, active_state=False)
+pump = gpiozero.LineSensor(pin=17, pull_up=None, active_state=False)
+heater = gpiozero.LineSensor(pin=23, pull_up=True)
+timer = gpiozero.LineSensor(pin=27, pull_up=True)
 
 with Session(engine) as session:
     while True:
