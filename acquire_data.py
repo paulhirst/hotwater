@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 import time
-import spidev
+import gpiozero
 
 from config import dbname
 from orm import Temps
@@ -9,44 +9,27 @@ from orm import Temps
 import datetime
 engine = create_engine(dbname, echo=False)
 
-spi = spidev.SpiDev()
-spi.open(0,0)
-spi.max_speed_hz = 1500000 # 1.5MHz
-spi.mode = 0
+adc0 = gpiozero.MCP3208(channel=0)
+adc1 = gpiozero.MCP3208(channel=1)
+adc2 = gpiozero.MCP3208(channel=2)
+adc3 = gpiozero.MCP3208(channel=3)
 
-def readadc(adcnum):
-    # read SPI data from the MCP3008, 1 channel
-    # This takes about 150us
-    # Byte 1: 0b00000001
-    # Byte 2: S/D D2 D1 D0 X X X X 
-    # Byte 3: X X X X X X X X
-    # r = spi.xfer2([1, 8 + adcnum << 4, 0])
-
-    # read SPI data from MCP3208, 1 channel
-    # Byte 1: 0b 00000 1 S/D D2
-    # Byte 2: 0b D1 D0 X X X X X X
-    # Byte 3: X X X X X X X X
-
-    # S/D = 1 (Single ended)
-    # D2 D1 D0 = channel number
-    d2 = (adcnum & 4) >> 2
-    d1 = (adcnum & 2) >> 1
-    d0 = adcnum & 1
-    r = spi.xfer2([6+d2, (d1 << 7) + (d0 << 6), 0])
-    #data = ((r[1] & 3) << 8) + r[2]
-    data = ((r[1] & 15) << 8) + r[2]
-    return data
-
+pump = gpiozero.LineSensor(pin=17, pull_up=None, active_state=False)
+heater = gpiozero.LineSensor(pin=23, pull_up=True)
+timer = gpiozero.LineSensor(pin=27, pull_up=True)
 
 with Session(engine) as session:
     while True:
         t = Temps()
         t.datetime = datetime.datetime.now()
-        t.adu0 = readadc(0)
-        t.adu1 = readadc(1)
-        t.adu2 = readadc(2)
-        t.adu3 = readadc(3)
-        print(f"{t.datetime} {t.adu0} {t.adu1} {t.adu2} {t.adu3}")
+        t.adc0 = adc0.value
+        t.adc1 = adc1.value
+        t.adc2 = adc2.value
+        t.adc3 = adc3.value
+        t.pump = pump.value
+        t.timer = timer.value
+        t.heater = heater.value
+        print(f"{t.datetime} {t.adc0} {t.adc1} {t.adc2} {t.adc3} {t.pump} {t.timer} {t.heater}")
         session.add(t)
         session.commit()
         time.sleep(10)

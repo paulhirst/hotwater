@@ -6,10 +6,11 @@ from orm import Temps
 
 import math
 
-def adutoc(adu):
+def adctoc(adc):
     # Initial simple ADU to degC conversion
     # Rt = Rf * Vout / (Vin - Vout)
-    vout = vin * adu / 4096.0
+    # Note gpiozero adc values are in range [0..1] - ie Vout/Vin
+    vout = vin * adc
     rt = rf * vout / (vin - vout)
 
     # Simplistic Rt = Ro exp(Beta * (S1 - S0)) where S = 1/T
@@ -26,7 +27,7 @@ def adutoc(adu):
 
     t1 = 1.0 / s1
 
-    t = t1 - 273
+    t = t1 - 273  # in C
 
     return t
 
@@ -41,10 +42,10 @@ if __name__ == "__main__":
                 done = True
             else:
                 print(f"Calibrating {temp.datetime}")
-                temp.temp0 = adutoc(temp.adu0)
-                temp.temp1 = adutoc(temp.adu1)
-                temp.temp2 = adutoc(temp.adu2)
-                temp.temp3 = adutoc(temp.adu3)
+                temp.temp0 = adctoc(temp.adc0)
+                temp.temp1 = adctoc(temp.adc1)
+                temp.temp2 = adctoc(temp.adc2)
+                temp.temp3 = adctoc(temp.adc3)
                 session.commit()
 
 
