@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, select
 from bokeh.layouts import row, column
 from bokeh.models import Button
 from bokeh.plotting import figure, curdoc
-from bokeh.models import ColumnDataSource, DatetimePicker
+from bokeh.models import ColumnDataSource, DatetimePicker, Band
 
 from orm import Temps
 
@@ -17,7 +17,10 @@ t0s = []
 t1s = []
 t2s = []
 t3s = []
-color = ['red', 'blue', 'green', 'black']
+pumps = []
+timers = []
+heaters = []
+color = ['red', 'blue', 'green', 'black', 'yellow', 'cyan', 'magenta']
 
 p = figure(title="Hotwater monitoring",
            x_axis_label='Date Time',
@@ -31,7 +34,11 @@ p = figure(title="Hotwater monitoring",
 xs = [datetimes, datetimes, datetimes, datetimes]
 ys = [t0s, t1s, t2s, t3s]
 cds = ColumnDataSource(data=dict(xs=xs, ys=ys, color=color))
+bcds = ColumnDataSource(data=dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters))
 l = p.multi_line(xs='xs', ys='ys', source=cds, line_color='color')
+tva = p.varea(x='x', y1=0, y2='timers', alpha=0.4, fill_color='cyan', source=bcds)
+hva = p.varea(x='x', y1=0, y2='heaters', alpha=0.4, fill_color='red', source=bcds)
+pva = p.varea(x='x', y1=0, y2='pumps', alpha=0.4, fill_color='yellow', source=bcds)
 
 # Add the widgets
 startdt_picker = DatetimePicker(title="Start")
@@ -40,6 +47,7 @@ button = Button(label="Plot")
 
 def update_cds():
     global cds
+    global bcds
     print ("Updating")
 
     datetimes = []
@@ -47,6 +55,9 @@ def update_cds():
     t1s = []
     t2s = []
     t3s = []
+    pumps = []
+    timers = []
+    heaters = []
 
     with Session(engine) as session:
         stmt = select(Temps)
@@ -56,11 +67,14 @@ def update_cds():
             t1s.append(t.temp1)
             t2s.append(t.temp2)
             t3s.append(t.temp3)
+            pumps.append(100.0 * t.pump)
+            timers.append(100.0 * t.timer)
+            heaters.append(100.0 * t.heater)
 
     xs = [datetimes, datetimes, datetimes, datetimes]
     ys = [t0s, t1s, t2s, t3s]
     cds.data = dict(xs=xs, ys=ys, color=color)
-    #l.data_source = cds
+    bcds.data = dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters)
     print(f"Updated cds with {len(datetimes)} values")
 
 
