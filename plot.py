@@ -17,11 +17,12 @@ t0s = []
 t1s = []
 t2s = []
 t3s = []
+linkdeltas = []
 pumps = []
 timers = []
 heaters = []
-color = ['red', 'blue', 'green', 'black']
-labels = ['Mixer', 'TankTop', 'Downlink', 'Uplink']
+color = ['red', 'purple', 'orange', 'blue', 'yellow']
+labels = ['TankTop', 'Mixer', 'Downlink', 'Uplink', 'LinkDelta']
 
 p = figure(title="Hotwater monitoring",
            x_axis_label='Date Time',
@@ -32,8 +33,8 @@ p = figure(title="Hotwater monitoring",
            )
 
 # Add the scatter plot, with dummy data but configure the color mapper
-xs = [datetimes, datetimes, datetimes, datetimes]
-ys = [t0s, t1s, t2s, t3s]
+xs = [datetimes, datetimes, datetimes, datetimes, datetimes]
+ys = [t0s, t1s, t2s, t3s, linkdeltas]
 cds = ColumnDataSource(data=dict(xs=xs, ys=ys, color=color, labels=labels))
 bcds = ColumnDataSource(data=dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters))
 l = p.multi_line(xs='xs', ys='ys', source=cds, line_color='color', legend_field='labels')
@@ -56,6 +57,7 @@ def update_cds():
     t1s = []
     t2s = []
     t3s = []
+    linkdeltas = []
     pumps = []
     timers = []
     heaters = []
@@ -68,12 +70,13 @@ def update_cds():
             t1s.append(t.temp1)
             t2s.append(t.temp2)
             t3s.append(t.temp3)
+            linkdeltas.append(t.temp2 - t.temp3)
             pumps.append(100.0 * t.pump)
             timers.append(100.0 * t.timer)
             heaters.append(100.0 * t.heater)
 
-    xs = [datetimes, datetimes, datetimes, datetimes]
-    ys = [t0s, t1s, t2s, t3s]
+    xs = [datetimes, datetimes, datetimes, datetimes, datetimes]
+    ys = [t0s, t1s, t2s, t3s,  linkdeltas]
     cds.data = dict(xs=xs, ys=ys, color=color, labels=labels)
     bcds.data = dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters)
     print(f"Updated cds with {len(datetimes)} values")
