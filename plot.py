@@ -20,7 +20,8 @@ t3s = []
 pumps = []
 timers = []
 heaters = []
-color = ['red', 'blue', 'green', 'black', 'yellow', 'cyan', 'magenta']
+color = ['red', 'blue', 'green', 'black']
+labels = ['Mixer', 'TankTop', 'Downlink', 'Uplink']
 
 p = figure(title="Hotwater monitoring",
            x_axis_label='Date Time',
@@ -33,9 +34,9 @@ p = figure(title="Hotwater monitoring",
 # Add the scatter plot, with dummy data but configure the color mapper
 xs = [datetimes, datetimes, datetimes, datetimes]
 ys = [t0s, t1s, t2s, t3s]
-cds = ColumnDataSource(data=dict(xs=xs, ys=ys, color=color))
+cds = ColumnDataSource(data=dict(xs=xs, ys=ys, color=color, labels=labels))
 bcds = ColumnDataSource(data=dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters))
-l = p.multi_line(xs='xs', ys='ys', source=cds, line_color='color')
+l = p.multi_line(xs='xs', ys='ys', source=cds, line_color='color', legend_field='labels')
 tva = p.varea(x='x', y1=0, y2='timers', alpha=0.4, fill_color='cyan', source=bcds)
 hva = p.varea(x='x', y1=0, y2='heaters', alpha=0.4, fill_color='red', source=bcds)
 pva = p.varea(x='x', y1=0, y2='pumps', alpha=0.4, fill_color='yellow', source=bcds)
@@ -73,7 +74,7 @@ def update_cds():
 
     xs = [datetimes, datetimes, datetimes, datetimes]
     ys = [t0s, t1s, t2s, t3s]
-    cds.data = dict(xs=xs, ys=ys, color=color)
+    cds.data = dict(xs=xs, ys=ys, color=color, labels=labels)
     bcds.data = dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters)
     print(f"Updated cds with {len(datetimes)} values")
 
