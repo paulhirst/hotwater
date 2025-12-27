@@ -5,6 +5,7 @@ import gpiozero
 
 from config import dbname
 from orm import Temps
+from calibrate import adctoc
 
 import datetime
 engine = create_engine(dbname, echo=False)
@@ -29,6 +30,10 @@ with Session(engine) as session:
         t.pump = pump.value
         t.timer = timer.value
         t.heater = heater.value
+        t.temp0 = adctoc(t.adc0)
+        t.temp1 = adctoc(t.adc1)
+        t.temp2 = adctoc(t.adc2)
+        t.temp3 = adctoc(t.adc3)
         print(f"{t.datetime} {t.adc0} {t.adc1} {t.adc2} {t.adc3} {t.pump} {t.timer} {t.heater}")
         session.add(t)
         session.commit()
