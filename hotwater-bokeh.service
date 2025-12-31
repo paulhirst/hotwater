@@ -4,7 +4,7 @@ After=syslog.target network.target
 
 [Service]
 User=phirst
-ExecStart=/home/phirst/miniforge3/envs/hotwater/bin/bokeh serve /home/phirst/hotwater/plot.py
+ExecStart=/home/phirst/miniforge3/envs/hotwater/bin/bokeh serve --allow-websocket-origin=hotwater:5006 /home/phirst/hotwater/plot.py
 Restart=always
 RestartSec=10
 
