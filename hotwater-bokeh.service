@@ -1,0 +1,12 @@
+[Unit]
+Description=Hotwater Monitoring Bokeh Server
+After=syslog.target network.target
+
+[Service]
+User=phirst
+ExecStart=/home/phirst/miniforge3/envs/hotwater/bin/bokeh serve /home/phirst/hotwater/plot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

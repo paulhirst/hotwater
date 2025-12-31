@@ -1,0 +1,12 @@
+[Unit]
+Description=Hotwater Monitoring Data Acquisition
+After=syslog.target network.target
+
+[Service]
+User=phirst
+ExecStart=/home/phirst/miniforge3/envs/hotwater/bin/python /home/phirst/hotwater/acquire_data.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
