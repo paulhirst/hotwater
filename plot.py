@@ -21,7 +21,7 @@ linkdeltas = []
 pumps = []
 timers = []
 heaters = []
-color = ['red', 'purple', 'orange', 'blue', 'yellow']
+color = ['red', 'purple', 'orange', 'blue', 'orange']
 labels = ['TankTop', 'Mixer', 'Downlink', 'Uplink', 'LinkDelta']
 
 p = figure(title="Hotwater monitoring",
@@ -70,7 +70,7 @@ def update_cds():
             t1s.append(t.temp1)
             t2s.append(t.temp2)
             t3s.append(t.temp3)
-            linkdeltas.append(t.temp2 - t.temp3)
+            linkdeltas.append((t.temp2 - t.temp3) if t.pump else None)
             pumps.append(100.0 * t.pump)
             timers.append(100.0 * t.timer)
             heaters.append(100.0 * t.heater)
