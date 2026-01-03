@@ -6,6 +6,8 @@ from bokeh.models import Button
 from bokeh.plotting import figure, curdoc
 from bokeh.models import ColumnDataSource, DatetimePicker, Band
 
+import datetime
+
 from orm import Temps
 
 from config import dbname
@@ -43,9 +45,12 @@ hva = p.varea(x='x', y1=0, y2='heaters', alpha=0.4, fill_color='red', source=bcd
 pva = p.varea(x='x', y1=0, y2='pumps', alpha=0.4, fill_color='yellow', source=bcds)
 
 # Add the widgets
+start_datetime = None
+end_datetime = None
 startdt_picker = DatetimePicker(title="Start")
 enddt_picker = DatetimePicker(title="End")
-button = Button(label="Plot")
+plot_button = Button(label="Plot")
+today_button = Button(label="Today")
 
 def update_cds():
     global cds
@@ -64,6 +69,10 @@ def update_cds():
 
     with Session(engine) as session:
         stmt = select(Temps)
+        if start_datetime is not None:
+            stmt = stmt.where(Temps.datetime >= start_datetime)
+        if end_datetime is not None:
+            stmt = stmt.where(Temps.datetime <= end_datetime)
         for t in session.scalars(stmt):
             datetimes.append(t.datetime)
             t0s.append(t.temp0)
@@ -81,12 +90,23 @@ def update_cds():
     bcds.data = dict(x=datetimes, timers=timers, pumps=pumps, heaters=heaters)
     print(f"Updated cds with {len(datetimes)} values")
 
+def today():
+    global start_datetime, end_datetime
+    
+    today_date = datetime.date.today()
+    start_time = datetime.time(hour=5, minute=0, second=0)
+    end_time = datetime.time(hour=21, minute=0, second=0)
+    start_datetime = datetime.datetime.combine(today_date, start_time)
+    end_datetime = datetime.datetime.combine(today_date, end_time)
+
+    update_cds()
 
 # Setup Callbacks
-button.on_event('button_click', update_cds)
+plot_button.on_event('button_click', update_cds)
+today_button.on_event('button_click', today)
 
 # Set up document
-toprow = row(startdt_picker, enddt_picker, button)
+toprow = row(startdt_picker, enddt_picker, plot_button, today_button)
 col = column(toprow, p)
 
 curdoc().add_root(col)
