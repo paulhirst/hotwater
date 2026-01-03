@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, select
 from bokeh.layouts import row, column
 from bokeh.models import Button
 from bokeh.plotting import figure, curdoc
-from bokeh.models import ColumnDataSource, DatetimePicker, Band
+from bokeh.models import ColumnDataSource, DatePicker, TimePicker
 
 import datetime
 
@@ -47,8 +47,8 @@ pva = p.varea(x='x', y1=0, y2='pumps', alpha=0.4, fill_color='yellow', source=bc
 # Add the widgets
 start_datetime = None
 end_datetime = None
-startdt_picker = DatetimePicker(title="Start")
-enddt_picker = DatetimePicker(title="End")
+startdate_picker = DatePicker(title="Start Date")
+enddate_picker = DatePicker(title="End Date")
 plot_button = Button(label="Plot")
 today_button = Button(label="Today")
 
@@ -92,8 +92,11 @@ def update_cds():
 
 def today():
     global start_datetime, end_datetime
-    
+
     today_date = datetime.date.today()
+    startdate_picker.value = today_date.isoformat()
+    enddate_picker.value = today_date.isoformat()
+
     start_time = datetime.time(hour=5, minute=0, second=0)
     end_time = datetime.time(hour=21, minute=0, second=0)
     start_datetime = datetime.datetime.combine(today_date, start_time)
@@ -101,12 +104,29 @@ def today():
 
     update_cds()
 
+def plot():
+    global start_datetime, end_datetime
+
+    sd = datetime.date.fromisoformat(startdate_picker.value)
+    ed = datetime.date.fromisoformat(enddate_picker.value)
+
+    print(f"{type(sd)} {sd}")
+
+    day = datetime.timedelta(days=1)
+    ed += day
+    zh = datetime.time(hour=0, minute=0, second=0)
+    start_datetime = datetime.datetime.combine(sd, zh)
+    end_datetime = datetime.datetime.combine(ed, zh)
+
+    update_cds()
+
+
 # Setup Callbacks
-plot_button.on_event('button_click', update_cds)
+plot_button.on_event('button_click', plot)
 today_button.on_event('button_click', today)
 
 # Set up document
-toprow = row(startdt_picker, enddt_picker, plot_button, today_button)
+toprow = row(startdate_picker, enddate_picker, plot_button, today_button)
 col = column(toprow, p)
 
 curdoc().add_root(col)
